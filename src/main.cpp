@@ -57,7 +57,6 @@ int main() {
   auto pix00 = vp_upper_left + 0.5 * (pix_du + pix_dv);
 
   /* -------- Render -------- */
-
   auto world = hittable_list();
   world.add(std::make_shared<sphere>(point3d(-0.1, 0, -1), 0.5));
   world.add(std::make_shared<sphere>(point3d(0.2, -0.1, -0.5), 0.1));
