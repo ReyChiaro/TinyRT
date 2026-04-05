@@ -1,3 +1,5 @@
+#include "color.hpp"
+#include "vector.hpp"
 #include <iostream>
 #include <thread>
 
@@ -13,16 +15,11 @@ int main() {
 
   for (unsigned int h = 0; h < img_h; h += 1) {
     std::clog << "\rScanlines: " << (h + 1) << " " << std::flush;
-    std::this_thread::sleep_for(10ms);
+    std::this_thread::sleep_for(5ms);
     for (unsigned int w = 0; w < img_w; w += 1) {
-
-      int r = static_cast<int>((double)h / (img_h - 1) * 255);
-      int g = static_cast<int>((double)w / (img_w - 1) * 255);
-      int b = 0;
-
-      std::cout << r << " " << g << " " << b << " ";
+      auto color = vec3d(0, double(h) / (img_h - 1), double(w) / (img_w - 1));
+      write_color(std::cout, color);
     }
-    std::cout << std::endl;
   }
   std::clog << "\nDone." << std::endl;
 
