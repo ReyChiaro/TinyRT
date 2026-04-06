@@ -1,23 +1,18 @@
 #include "color.hpp"
+#include "constants.hpp"
 #include "hittable.hpp"
 #include "hittable_list.hpp"
+#include "interval.hpp"
 #include "ray.hpp"
 #include "sphere.hpp"
 #include "vector.hpp"
 #include <iostream>
-#include <limits>
 #include <memory>
 #include <thread>
 
-auto aspect_ratio = 16.0 / 9.0;
-auto img_w = 512;
-auto sphere_center = point3d(0, 0, -1);
-auto sphere_radius = 0.5;
-auto inf = std::numeric_limits<data_t>::infinity();
-
 color ray_color(const ray &r, const hittable_list &world) {
   hit_info info;
-  if (world.hit(r, 0, inf, info)) {
+  if (world.hit(r, interval(0, inf), info)) {
     return color(0.5 * (info.normal + 1.0));
   }
 

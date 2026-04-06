@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hittable.hpp"
+#include "interval.hpp"
 #include "vector.hpp"
 #include <cmath>
 
@@ -13,8 +14,7 @@ public:
   sphere(const point3d &center, const data_t radius)
       : _center(center), _radius(radius) {}
 
-  bool hit(const ray &r, const data_t t_min, const data_t t_max,
-           hit_info &info) const override {
+  bool hit(const ray &r, const interval ray_t, hit_info &info) const override {
     vec3d oc = _center - r.origin();
 
     auto a = dot(r.direction(), r.direction());
@@ -28,9 +28,9 @@ public:
     auto sqrt_delta = std::sqrt(delta);
 
     auto root = (h - sqrt_delta) / a;
-    if (root <= t_min || root >= t_max) {
+    if (root <= ray_t.min || root >= ray_t.max) {
       root = (h + sqrt_delta) / a;
-      if (root <= t_min || root >= t_max) {
+      if (root <= ray_t.min || root >= ray_t.max) {
         return false;
       }
     }

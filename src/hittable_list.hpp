@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hittable.hpp"
+#include "interval.hpp"
 #include "vector.hpp"
 #include <memory>
 #include <vector>
@@ -16,14 +17,13 @@ public:
 
   void add(std::shared_ptr<hittable> object) { objects.push_back(object); }
 
-  bool hit(const ray &r, const data_t t_min, const data_t t_max,
-           hit_info &info) const override {
+  bool hit(const ray &r, const interval ray_t, hit_info &info) const override {
     hit_info temp_info;
-    data_t cloest_t = t_max;
+    data_t cloest_t = ray_t.max;
     bool is_hit = false;
 
     for (const auto &obj : objects) {
-      if (obj->hit(r, t_min, t_max, temp_info)) {
+      if (obj->hit(r, ray_t, temp_info)) {
         is_hit = true;
         if (temp_info.t < cloest_t) {
           cloest_t = temp_info.t;

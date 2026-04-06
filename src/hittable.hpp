@@ -1,5 +1,6 @@
 #pragma once
 
+#include "interval.hpp"
 #include "ray.hpp"
 #include "vector.hpp"
 
@@ -20,6 +21,6 @@ struct hit_info {
 class hittable {
 public:
   virtual ~hittable() = default;
-  virtual bool hit(const ray &r, const data_t t_min, const data_t t_max,
+  virtual bool hit(const ray &r, const interval ray_t,
                    hit_info &info) const = 0;
 };
