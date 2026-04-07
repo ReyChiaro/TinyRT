@@ -1,13 +1,15 @@
 #pragma once
 
 #include "color.hpp"
-#include "constants.hpp"
+#include "common.hpp"
 #include "hittable.hpp"
 #include "ray.hpp"
 #include "vector.hpp"
 
 class camera {
 public:
+  int num_samplers_per_pixel;
+
   void render(const hittable &world) {
     initialize();
 
@@ -16,27 +18,29 @@ public:
     for (int h = 0; h < img_h; h++) {
       std::clog << "\rScanlines: " << h << ' ' << std::flush;
       for (int w = 0; w < img_w; w++) {
-        auto pixel_center =
-            pixel00_loc + (w * pixel_delta_u) + (h * pixel_delta_v);
-        auto ray_direction = pixel_center - center;
-        ray r(center, ray_direction);
+        auto pixel_color = color(0, 0, 0);
+        for (auto _ = 0; _ < num_samplers_per_pixel; _ += 1) {
+          ray r = get_ray(w, h);
+          pixel_color += ray_color(r, world);
+        }
 
-        color pixel_color = ray_color(r, world);
-        write_color(std::cout, pixel_color);
+        write_color(std::cout, pixel_color, num_samplers_per_pixel);
       }
     }
 
-    std::clog << "\nDone." << std::endl;;
+    std::clog << "\nDone." << std::endl;
+    ;
   }
 
 private:
-  point3d center;      // Camera center
-  point3d pixel00_loc; // Location of pixel 0, 0
-  vec3d pixel_delta_u; // Offset to pixel to the right
-  vec3d pixel_delta_v; // Offset to pixel below
+  point3d _center;      // Camera center
+  point3d _pixel00_loc; // Location of pixel 0, 0
+  vec3d _pixel_delta_u; // Offset to pixel to the right
+  vec3d _pixel_delta_v; // Offset to pixel below
 
   void initialize() {
-    center = point3d(0, 0, 0);
+    _center = point3d(0, 0, 0);
+    num_samplers_per_pixel = 10;
 
     // Determine viewport dimensions.
     auto focal_length = 1.0;
@@ -49,13 +53,14 @@ private:
     auto viewport_v = vec3d(0, -viewport_height, 0);
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
-    pixel_delta_u = viewport_u / img_w;
-    pixel_delta_v = viewport_v / img_h;
+    _pixel_delta_u = viewport_u / img_w;
+    _pixel_delta_v = viewport_v / img_h;
 
     // Calculate the location of the upper left pixel.
     auto viewport_upper_left =
-        center - vec3d(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
-    pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+        _center - vec3d(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
+    _pixel00_loc =
+        viewport_upper_left + 0.5 * (_pixel_delta_u + _pixel_delta_v);
   }
 
   color ray_color(const ray &r, const hittable &world) const {
@@ -68,5 +73,17 @@ private:
     vec3d unit_direction = normalize(r.direction());
     auto a = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+  }
+
+  ray get_ray(int w, int h) const {
+    auto pix_center = _pixel00_loc + w * _pixel_delta_u + h * _pixel_delta_v;
+    auto pixel = pix_center + sample_pixel();
+    return ray(_center, pixel - _center);
+  }
+
+  point3d sample_pixel() const {
+    auto px = random_number() - 0.5;
+    auto py = random_number() - 0.5;
+    return px * _pixel_delta_u + py * _pixel_delta_v;
   }
 };

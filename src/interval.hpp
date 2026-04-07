@@ -1,6 +1,6 @@
 #pragma once
 
-#include "constants.hpp"
+#include "common.hpp"
 #include "vector.hpp"
 
 class interval {
@@ -13,8 +13,15 @@ public:
       : min(interval_min), max(interval_max) {}
 
   data_t size() { return max - min; }
-  bool contains(double x) const { return min <= x && x <= max; }
-  bool surrounds(double x) const { return min < x && x < max; }
+  data_t clamp(data_t x) {
+    if (x < min)
+      return min;
+    if (x > max)
+      return max;
+    return x;
+  }
+  bool contains(data_t x) const { return min <= x && x <= max; }
+  bool surrounds(data_t x) const { return min < x && x < max; }
 
   static const interval empty;
   static const interval universe;
