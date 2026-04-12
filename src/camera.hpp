@@ -21,7 +21,7 @@ public:
         auto pixel_color = color(0, 0, 0);
         for (auto _ = 0; _ < num_samplers_per_pixel; _ += 1) {
           ray r = get_ray(w, h);
-          pixel_color += ray_color(r, world);
+          pixel_color += ray_color(r, _max_ray_bounces, world);
         }
 
         write_color(std::cout, pixel_color, num_samplers_per_pixel);
@@ -37,9 +37,12 @@ private:
   point3d _pixel00_loc; // Location of pixel 0, 0
   vec3d _pixel_delta_u; // Offset to pixel to the right
   vec3d _pixel_delta_v; // Offset to pixel below
+  int _max_ray_bounces; // Maximum number of ray bounces, to avoid deep
+                        // recurrence
 
   void initialize() {
     _center = point3d(0, 0, 0);
+    _max_ray_bounces = 10;
     num_samplers_per_pixel = 10;
 
     // Determine viewport dimensions.
@@ -63,11 +66,16 @@ private:
         viewport_upper_left + 0.5 * (_pixel_delta_u + _pixel_delta_v);
   }
 
-  color ray_color(const ray &r, const hittable &world) const {
+  color ray_color(const ray &r, int recursive_depth,
+                  const hittable &world) const {
+    if (recursive_depth <= 0) {
+      return color(0, 0, 0);
+    }
     hit_info rec;
 
-    if (world.hit(r, interval(0, inf), rec)) {
-      return 0.5 * (rec.normal + color(1, 1, 1));
+    if (world.hit(r, interval(1e-4, inf), rec)) {
+      auto p = random_on_hemisphere(rec.normal);
+      return 0.5 * ray_color(ray(rec.point, p), recursive_depth - 1, world);
     }
 
     vec3d unit_direction = normalize(r.direction());

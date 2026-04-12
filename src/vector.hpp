@@ -1,9 +1,9 @@
 #pragma once
 
+#include "types.hpp"
+#include "utils.hpp"
 #include <cmath>
 #include <iostream>
-
-using data_t = double;
 
 class vec3d {
 public:
@@ -45,9 +45,16 @@ public:
     return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
   }
   data_t length() const { return std::sqrt(length_squared()); }
-};
 
-using point3d = vec3d;
+  static vec3d random() {
+    return vec3d(random_number(), random_number(), random_number());
+  }
+
+  static vec3d random(data_t min, data_t max) {
+    return vec3d(random_number(min, max), random_number(min, max),
+                 random_number(min, max));
+  }
+};
 
 inline std::ostream &operator<<(std::ostream &out, const vec3d &vec) {
   out << vec.e[0] << " " << vec.e[1] << " " << vec.e[2];
@@ -91,3 +98,23 @@ inline vec3d cross(const vec3d &v1, const vec3d &v2) {
 }
 
 inline vec3d normalize(const vec3d &v) { return v / v.length(); }
+
+inline vec3d random_in_unit_sphere() {
+  while (true) {
+    auto p = vec3d::random(-1, 1);
+    if (p.length() > 1) {
+      continue;
+    }
+    return p;
+  }
+}
+
+inline vec3d random_unit_vector() { return normalize(random_in_unit_sphere()); }
+
+inline vec3d random_on_hemisphere(const vec3d &normal) {
+  auto unit_p = random_unit_vector();
+  return dot(unit_p, normal) > 0 ? unit_p : -unit_p;
+}
+
+using point3d = vec3d;
+using color = vec3d;

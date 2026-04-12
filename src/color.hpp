@@ -4,8 +4,6 @@
 #include "vector.hpp"
 #include <iostream>
 
-using color = vec3d;
-
 /**
 @param color: Each element of color vec3d should be double/float value between
 [0,1]
