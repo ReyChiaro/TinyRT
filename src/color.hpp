@@ -1,8 +1,14 @@
 #pragma once
 
 #include "interval.hpp"
+#include "types.hpp"
 #include "vector.hpp"
+#include <cmath>
 #include <iostream>
+
+inline auto linear_to_gamma(data_t linear_color) {
+  return linear_color < 0 ? 0 : std::sqrt(linear_color);
+}
 
 /**
 @param color: Each element of color vec3d should be double/float value between
@@ -18,6 +24,10 @@ inline void write_color(std::ostream &out, const vec3d &color,
   r *= scale;
   g *= scale;
   b *= scale;
+
+  r = linear_to_gamma(r);
+  g = linear_to_gamma(g);
+  b = linear_to_gamma(b);
 
   interval color_range(0, 1);
   out << static_cast<int>(color_range.clamp(r) * 255) << " "
