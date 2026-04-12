@@ -73,8 +73,9 @@ private:
     }
     hit_info rec;
 
-    if (world.hit(r, interval(1e-4, inf), rec)) {
-      auto p = random_on_hemisphere(rec.normal);
+    if (world.hit(r, interval(1e-3, inf), rec)) {
+      // auto p = random_on_hemisphere(rec.normal);
+      auto p = rec.normal + random_unit_vector();
       return 0.5 * ray_color(ray(rec.point, p), recursive_depth - 1, world);
     }
 
